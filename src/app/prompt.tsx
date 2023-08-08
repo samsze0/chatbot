@@ -13,7 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { create } from "zustand";
+import { cn } from "@/lib/utils";
+
+export const usePromptStore = create<{
+  open: boolean;
+}>((set) => ({
+  open: false,
+}));
 
 export function Prompt({
   className,
@@ -32,41 +40,81 @@ export function Prompt({
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   const { t } = useTranslation();
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { open } = usePromptStore();
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "l" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        usePromptStore.setState({ open: true });
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   return (
-    <Dialog>
+    <Dialog open={open}>
       <DialogTrigger asChild>
-        <Button variant="outline" className={className}>
+        <Button
+          variant="outline"
+          className={cn(className, "flex flex-row gap-2 items-center justify-between py-5 px-3")}
+          onClick={(e) => {
+            usePromptStore.setState({ open: true });
+          }}
+        >
           {t("Prompt")}
+          <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium flex">
+            <span className="text-xs">⌘</span>L
+          </kbd>
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="h-[80%] w-[90%] p-0 border-0 shadow-none bg-transparent"
+        className="w-[80%] h-[80%] p-0 border-0 shadow-none bg-transparent"
         showClose={false}
+        onEscapeKeyDown={(e) => {
+          usePromptStore.setState({ open: false });
+        }}
+        onInteractOutside={(e) => {
+          usePromptStore.setState({ open: false });
+        }}
+        onPointerDownOutside={(e) => {
+          usePromptStore.setState({ open: false });
+        }}
       >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5 bg-background">
+        <form
+          onSubmit={(e) => {
+            handleSubmit(e);
+            usePromptStore.setState({ open: false });
+          }}
+          className="flex flex-col gap-5 bg-background"
+        >
           <Textarea
-            className="flex-1 resize-none text-base text-foreground/80 leading-relaxed"
-            onFocus={(e) => {
-              e.target.selectionStart = e.target.value.length;
-              e.target.selectionEnd = e.target.value.length;
-            }}
+            className="flex-1 resize-none text-base text-foreground/80 leading-relaxed focus-visible:ring-0 focus-visible:outline-none outline-none ring-0"
             value={input}
             placeholder={t("Prompt")}
             onChange={handleInputChange}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && !e.metaKey && !e.altKey && !e.ctrlKey) {
+                if (e.shiftKey) {
+                  return;
+                }
+
                 // @ts-ignore
                 e.target.form.requestSubmit();
                 e.preventDefault();
-                closeButtonRef.current?.click();
               }
             }}
           />
           <div className="flex flex-row gap-2 self-end">
             <DialogClose asChild>
-              <Button variant="outline" ref={closeButtonRef}>
+              <Button
+                variant="outline"
+                onClick={(e) => {
+                  usePromptStore.setState({ open: false });
+                }}
+              >
                 {t("Close")}
               </Button>
             </DialogClose>
