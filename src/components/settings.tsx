@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,28 +17,72 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { cn } from "@/lib/utils";
 import {
   CatchHotkeyDialog,
   useCatchHotkeyDialogStore,
 } from "@/components/catch-hotkey-dialog";
+import usePersistedStore from "@/components/usePersistedStore";
+import * as z from "zod";
 
 export const useSettingsStore = create<{
   open: boolean;
   openSettingsHotkey: string;
   openPromptHotkey: string;
   openCommandMenuHotkey: string;
-}>((set) => ({
-  open: false,
-  openSettingsHotkey: ",",
-  openPromptHotkey: "p",
-  openCommandMenuHotkey: "k",
-}));
+}>()(
+  persist(
+    (set) => ({
+      open: false,
+      openSettingsHotkey: ",",
+      openPromptHotkey: "p",
+      openCommandMenuHotkey: "k",
+    }),
+    {
+      name: "settings-storage",
+      partialize: ({
+        openCommandMenuHotkey,
+        openPromptHotkey,
+        openSettingsHotkey,
+      }) => ({ openCommandMenuHotkey, openPromptHotkey, openSettingsHotkey }),
+      merge: (persisted, current) => {
+        if (!persisted) return current;
+
+        const parseResult = z
+          .object({
+            openCommandMenuHotkey: z.string(),
+            openPromptHotkey: z.string(),
+            openSettingsHotkey: z.string(),
+          })
+          .safeParse(persisted);
+
+        if (!parseResult.success) {
+          console.error(parseResult.error);
+          return current;
+        }
+
+        return { ...current, ...parseResult.data };
+      },
+    }
+  )
+);
 
 export function Settings({ className, ...props }: { className?: string }) {
   const { t } = useTranslation();
-  const { open, openSettingsHotkey, openPromptHotkey, openCommandMenuHotkey } =
-    useSettingsStore();
+  const open = useSettingsStore((state) => state.open);
+  const openSettingsHotkey = usePersistedStore(
+    useSettingsStore,
+    (state) => state.openSettingsHotkey
+  );
+  const openPromptHotkey = usePersistedStore(
+    useSettingsStore,
+    (state) => state.openPromptHotkey
+  );
+  const openCommandMenuHotkey = usePersistedStore(
+    useSettingsStore,
+    (state) => state.openCommandMenuHotkey
+  );
   const openSettingsHotkeyRef = useRef(openSettingsHotkey);
 
   useEffect(() => {
@@ -73,7 +119,7 @@ export function Settings({ className, ...props }: { className?: string }) {
           {t("Settings")}
           <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium flex">
             <span className="text-xs">⌘</span>
-            {openSettingsHotkey.toUpperCase()}
+            {openSettingsHotkey?.toUpperCase()}
           </kbd>
         </Button>
       </DialogTrigger>
@@ -155,7 +201,7 @@ const HotkeyConfig = ({
   label,
   ...props
 }: {
-  value: string;
+  value?: string;
   inputId: string;
   onChange: (value: string) => void;
   label: string;
@@ -191,7 +237,7 @@ const HotkeyConfig = ({
             });
           }}
         >
-          <span>{value.toUpperCase()}</span>
+          <span>{value?.toUpperCase()}</span>
         </kbd>
       </div>
     </>

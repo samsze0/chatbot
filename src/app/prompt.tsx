@@ -17,6 +17,7 @@ import { useEffect, useRef } from "react";
 import { create } from "zustand";
 import { cn } from "@/lib/utils";
 import { useSettingsStore } from "@/components/settings";
+import usePersistedStore from "@/components/usePersistedStore";
 
 export const usePromptStore = create<{
   open: boolean;
@@ -42,7 +43,10 @@ export function Prompt({
 }) {
   const { t } = useTranslation();
   const { open } = usePromptStore();
-  const openPromptHotkey = useSettingsStore((state) => state.openPromptHotkey);
+  const openPromptHotkey = usePersistedStore(
+    useSettingsStore,
+    (state) => state.openPromptHotkey
+  );
   const openPromptHotkeyRef = useRef(openPromptHotkey);
 
   useEffect(() => {
@@ -77,7 +81,7 @@ export function Prompt({
           {t("Prompt")}
           <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium flex">
             <span className="text-xs">⌘</span>
-            {openPromptHotkey.toUpperCase()}
+            {openPromptHotkey?.toUpperCase()}
           </kbd>
         </Button>
       </DialogTrigger>

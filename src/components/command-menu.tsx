@@ -27,13 +27,15 @@ import {
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "@/components/settings";
 import { useCallback, useEffect, useRef } from "react";
+import usePersistedStore from "@/components/usePersistedStore";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const { setTheme } = useTheme();
   const { t } = useTranslation();
-  const openMenuHotkey = useSettingsStore(
+  const openMenuHotkey = usePersistedStore(
+    useSettingsStore,
     (state) => state.openCommandMenuHotkey
   );
   const openMenuHotkeyRef = useRef(openMenuHotkey);
@@ -73,7 +75,8 @@ export function CommandMenu({ ...props }: DialogProps) {
         <span className="hidden lg:inline-flex">{t("Type a command...")}</span>
         <span className="inline-flex lg:hidden">{t("Command...")}</span>
         <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-          <span className="text-xs">⌘</span>K
+          <span className="text-xs">⌘</span>
+          {openMenuHotkey?.toUpperCase()}
         </kbd>
       </Button>
       <CommandDialog
