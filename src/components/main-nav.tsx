@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { I18Dropdown } from "@/components/i18-dropdown";
 import { SocialLink } from "@/components/social-link";
 import { CommandMenu } from "@/components/command-menu";
+import { Settings } from "./settings";
 
 export const MainNav: React.FC<{}> = () => {
   const pathname = usePathname();
@@ -60,6 +61,7 @@ export const MainNav: React.FC<{}> = () => {
           <SocialLink href={siteConfig.links.linkedIn} type="linkedin" /> */}
           {/* <ThemeToggle /> */}
           {/* <I18Dropdown /> */}
+          <Settings />
         </nav>
       </div>
     </div>

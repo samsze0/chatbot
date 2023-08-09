@@ -25,16 +25,26 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useTranslation } from "react-i18next";
+import { useSettingsStore } from "@/components/settings";
+import { useCallback, useEffect, useRef } from "react";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const { setTheme } = useTheme();
   const { t } = useTranslation();
+  const openMenuHotkey = useSettingsStore(
+    (state) => state.openCommandMenuHotkey
+  );
+  const openMenuHotkeyRef = useRef(openMenuHotkey);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    openMenuHotkeyRef.current = openMenuHotkey;
+  }, [openMenuHotkey]);
+
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === openMenuHotkeyRef.current && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
       }
@@ -44,7 +54,7 @@ export function CommandMenu({ ...props }: DialogProps) {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const runCommand = React.useCallback((command: () => unknown) => {
+  const runCommand = useCallback((command: () => unknown) => {
     setOpen(false);
     command();
   }, []);
@@ -66,11 +76,17 @@ export function CommandMenu({ ...props }: DialogProps) {
           <span className="text-xs">⌘</span>K
         </kbd>
       </Button>
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandDialog
+        open={open}
+        onOpenChange={setOpen}
+        onEscapeKeyDown={(e) => {
+          setOpen(false);
+        }}
+      >
         <CommandInput placeholder={t("Type a command...")} />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading={t("Links")}>
+          {/* <CommandGroup heading={t("Links")}>
             {navConfig.mainNav
               .filter((navitem) => !navitem.external)
               .map((navItem) => (
@@ -85,8 +101,8 @@ export function CommandMenu({ ...props }: DialogProps) {
                   {t(navItem.title)}
                 </CommandItem>
               ))}
-          </CommandGroup>
-          {navConfig.sidebarNav.map((group) => (
+          </CommandGroup> */}
+          {/* {navConfig.sidebarNav.map((group) => (
             <CommandGroup key={group.title} heading={t(group.title)}>
               {group.items.map((navItem) => (
                 <CommandItem
@@ -103,22 +119,22 @@ export function CommandMenu({ ...props }: DialogProps) {
                 </CommandItem>
               ))}
             </CommandGroup>
-          ))}
-          <CommandSeparator />
-          {/* <CommandGroup heading={t("Theme")}>
-            <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
+          ))} */}
+          {/* <CommandSeparator /> */}
+          <CommandGroup heading={t("Theme")}>
+            {/* <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
               <SunIcon className="mr-2 h-4 w-4" />
               {t("Light Theme")}
-            </CommandItem>
+            </CommandItem> */}
             <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
               <MoonIcon className="mr-2 h-4 w-4" />
               {t("Dark Theme")}
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
+            {/* <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
               <LaptopIcon className="mr-2 h-4 w-4" />
               {t("System Theme")}
-            </CommandItem>
-          </CommandGroup> */}
+            </CommandItem> */}
+          </CommandGroup>
         </CommandList>
       </CommandDialog>
     </>

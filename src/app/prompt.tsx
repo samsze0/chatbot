@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 import { cn } from "@/lib/utils";
+import { useSettingsStore } from "@/components/settings";
 
 export const usePromptStore = create<{
   open: boolean;
@@ -41,10 +42,12 @@ export function Prompt({
 }) {
   const { t } = useTranslation();
   const { open } = usePromptStore();
+  const openPromptHotkey = useSettingsStore((state) => state.openPromptHotkey);
+  const openPromptHotkeyRef = useRef(openPromptHotkey);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "l" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === openPromptHotkeyRef.current && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         usePromptStore.setState({ open: true });
       }
@@ -54,25 +57,33 @@ export function Prompt({
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  useEffect(() => {
+    openPromptHotkeyRef.current = openPromptHotkey;
+  }, [openPromptHotkey]);
+
   return (
     <Dialog open={open}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className={cn(className, "flex flex-row gap-2 items-center justify-between py-5 px-3")}
+          className={cn(
+            className,
+            "flex flex-row gap-2 items-center justify-between py-5 px-3"
+          )}
           onClick={(e) => {
             usePromptStore.setState({ open: true });
           }}
         >
           {t("Prompt")}
           <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium flex">
-            <span className="text-xs">⌘</span>L
+            <span className="text-xs">⌘</span>
+            {openPromptHotkey.toUpperCase()}
           </kbd>
         </Button>
       </DialogTrigger>
       <DialogContent
         className="w-[80%] h-[80%] p-0 border-0 shadow-none bg-transparent"
-        showClose={false}
+        showDefaultCloseButton={false}
         onEscapeKeyDown={(e) => {
           usePromptStore.setState({ open: false });
         }}
