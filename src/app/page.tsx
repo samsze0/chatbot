@@ -26,21 +26,14 @@ export default function Chat() {
           <p className="text-sm text-muted-foreground">{t("Chat is empty")}</p>
         </div>
       ) : (
-        <ScrollArea
-          className={cn(
-            "container relative pt-8 pb-8 max-h-[80vh]",
-            "flex flex-col items-center justify-center"
-          )}
-        >
-          <div className="flex flex-col gap-2 items-stretch">
-            {messages.length > 0
-              ? messages.map((m) => <Message message={m} key={m.id} />)
-              : null}
-          </div>
-        </ScrollArea>
+        <div className="container relative pt-8 pb-8 flex flex-col gap-2 items-stretch">
+          {messages.length > 0
+            ? messages.map((m) => <Message message={m} key={m.id} />)
+            : null}
+        </div>
       )}
       <Prompt
-        className="absolute bottom-8 right-8"
+        className="fixed bottom-8 right-8"
         input={input}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
