@@ -10,6 +10,10 @@ import { Toaster } from "@/components/toaster";
 import { ThemeProvider } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 
+// https://nextjs.org/docs/app/api-reference/functions/generate-metadata
+// https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadata-fields
+// https://github.com/gokulkrishh/awesome-meta-and-manifest
+// https://nikolasbarwicki.com/articles/seo-in-next-js-13-with-metadata-api
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -19,11 +23,11 @@ export const metadata: Metadata = {
   keywords: siteConfig.keywords,
   authors: [
     {
-      name: "Artizon",
-      url: "https://artizon.io",
+      name: `${siteConfig.name} Team`,
+      url: siteConfig.url,
     },
   ],
-  creator: "Artizon",
+  creator: `${siteConfig.name} Team`,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
@@ -52,11 +56,41 @@ export const metadata: Metadata = {
     creator: siteConfig.twitter.account,
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/icons/favicon.ico",
+    shortcut: "/icons/favicon.png",
+    apple: "/icons/icon-192x192.png",
   },
-  manifest: `${siteConfig.url}/site.webmanifest`,
+  manifest: `/manifest.json`,
+  appleWebApp: {
+    title: siteConfig.name,
+    capable: true,
+    statusBarStyle: "black-translucent",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+  },
+  generator: "Next.js",
+  publisher: "Vercel",
+  viewport: {
+    userScalable: false,
+    initialScale: 1,
+    width: "device-width",
+    minimumScale: 1,
+    maximumScale: 1,
+  },
+  applicationName: siteConfig.name,
+  other: {
+    "msapplication-tap-highlight": "no",
+    "msapplication-navbutton-color": "#ffffff",
+    "msapplication-TileColor": "#ffffff",
+    "msapplication-TileImage": "/icons/icon-192x192.png",
+    "msapplication-tooltip": siteConfig.name,
+    "msapplication-starturl": "/",
+    "mobile-web-app-capable": "yes",
+    "theme-color": "#ffffff",
+  },
 };
 
 interface RootLayoutProps {
