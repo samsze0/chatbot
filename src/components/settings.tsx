@@ -221,7 +221,6 @@ const HotkeyConfig = ({
             useCatchHotkeyDialogStore.setState({
               onKeydown: (e) => {
                 if (
-                  e.key !== value &&
                   e.key.length === 1 &&
                   !e.metaKey &&
                   !e.altKey &&
