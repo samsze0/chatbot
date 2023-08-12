@@ -17,7 +17,7 @@ import { useEffect, useRef } from "react";
 import { create } from "zustand";
 import { cn } from "@/lib/utils";
 import { useSettingsStore } from "@/components/settings";
-import usePersistedStore from "@/components/usePersistedStore";
+import usePersistedStore from "@/components/use-persisted-store";
 
 export const usePromptStore = create<{
   open: boolean;

@@ -9,6 +9,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import i18n from "i18next";
 import { useTranslation, initReactI18next } from "react-i18next";
 import { translations } from "@/config/translations";
+import { createClient } from "@supabase/supabase-js";
+import { SessionProvider } from "@/components/session-provider";
 
 i18n.use(initReactI18next).init({
   resources: translations,
@@ -19,10 +21,17 @@ i18n.use(initReactI18next).init({
   },
 });
 
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+);
+
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
-      <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+      <SessionProvider>
+        <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+      </SessionProvider>
     </NextThemesProvider>
   );
 }

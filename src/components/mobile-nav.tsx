@@ -8,7 +8,7 @@ import { RxViewVertical } from "react-icons/rx";
 import { navConfig } from "@/config/nav-config";
 import { siteConfig } from "@/config/site-config";
 import { Icons } from "@/components/icons";
-import { Button } from "@/components//ui/button";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -18,10 +18,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { I18Dropdown } from "@/components/i18-dropdown";
 import { SocialLink } from "@/components/social-link";
 import { CommandMenu } from "@/components/command-menu";
+import { useSessionStore } from "./session-provider";
 
 export function MobileNav() {
   const [open, setOpen] = React.useState(false);
   const { t } = useTranslation();
+  const session = useSessionStore((state) => state.session);
 
   return (
     <div className="container lg:hidden flex h-14 items-center justify-between">

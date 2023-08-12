@@ -27,7 +27,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "@/components/settings";
 import { useCallback, useEffect, useRef } from "react";
-import usePersistedStore from "@/components/usePersistedStore";
+import usePersistedStore from "@/components/use-persisted-store";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();

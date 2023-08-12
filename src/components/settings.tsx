@@ -23,7 +23,7 @@ import {
   CatchHotkeyDialog,
   useCatchHotkeyDialogStore,
 } from "@/components/catch-hotkey-dialog";
-import usePersistedStore from "@/components/usePersistedStore";
+import usePersistedStore from "@/components/use-persisted-store";
 import * as z from "zod";
 
 export const useSettingsStore = create<{

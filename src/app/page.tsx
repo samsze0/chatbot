@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Prompt } from "./prompt";
 
-export default function Chat() {
+export default function Page() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
   const { t } = useTranslation();
 

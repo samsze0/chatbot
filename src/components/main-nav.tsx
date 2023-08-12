@@ -13,11 +13,14 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { I18Dropdown } from "@/components/i18-dropdown";
 import { SocialLink } from "@/components/social-link";
 import { CommandMenu } from "@/components/command-menu";
-import { Settings } from "./settings";
+import { Settings } from "@/components/settings";
+import { useSessionStore } from "@/components/session-provider";
+import { AvatarMenu } from "@/components/avatar-menu";
 
 export const MainNav: React.FC<{}> = () => {
   const pathname = usePathname();
   const { t } = useTranslation();
+  const session = useSessionStore((state) => state.session);
 
   return (
     <div className="container hidden lg:flex h-14 items-center">
@@ -56,12 +59,13 @@ export const MainNav: React.FC<{}> = () => {
         <div className="w-full flex-1 lg:w-auto lg:flex-none">
           <CommandMenu />
         </div>
-        <nav className="flex items-center">
+        <nav className="flex items-center gap-2">
           {/* <SocialLink href={siteConfig.links.twitter} type="twitter" />
           <SocialLink href={siteConfig.links.linkedIn} type="linkedin" /> */}
           {/* <ThemeToggle /> */}
           {/* <I18Dropdown /> */}
           <Settings />
+          <AvatarMenu />
         </nav>
       </div>
     </div>
