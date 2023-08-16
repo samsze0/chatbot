@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/components/providers";
 import { Session } from "@supabase/supabase-js";
-import { redirect, usePathname, useRouter } from "next/navigation";
 import { create } from "zustand";
+import Cookies from "js-cookie";
+import { redirect, useRouter } from "next/navigation";
 
 export const useSessionStore = create<{
   session: Session | null;
@@ -10,34 +11,37 @@ export const useSessionStore = create<{
   session: null,
 }));
 
-const NO_AUTH_ROUTES = ["/login", "/signup"];
-
 export const SessionProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const pathname = usePathname();
-  const { session } = useSessionStore();
   const router = useRouter();
 
+  const onSessionChange = (session: Session | null) => {
+    useSessionStore.setState({ session });
+
+    if (session) {
+      Cookies.set("supabase-token", session.access_token, {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        expires: new Date(session.expires_at! * 1000),
+      });
+    } else {
+      Cookies.remove("supabase-token");
+    }
+  };
+
   useEffect(() => {
-    if (NO_AUTH_ROUTES.includes(pathname) && !session) return;
-    if (NO_AUTH_ROUTES.includes(pathname) && session) redirect("/");
-
-    // Inside one of AUTH_ROUTES
-    if (!session) redirect("/login");
-  }, [pathname, session]);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      useSessionStore.setState({ session });
-    });
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      useSessionStore.setState({ session });
+      console.info("auth change event", event, session);
+
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT") return;
+
+      onSessionChange(session);
+      router.refresh();
     });
 
     return () => subscription.unsubscribe();
