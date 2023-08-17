@@ -25,14 +25,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useSupabase } from "@/components/providers";
 import { redirect, useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export function AvatarMenu() {
   const session = useSessionStore((state) => state.session);
   const { t } = useTranslation();
   const router = useRouter();
-  const supabase = useSupabase();
+  const supabase = createClientComponentClient();
 
   return (
     <DropdownMenu>

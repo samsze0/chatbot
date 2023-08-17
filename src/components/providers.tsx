@@ -22,27 +22,27 @@ i18n.use(initReactI18next).init({
   },
 });
 
-export const useSupabase = () => {
-  const [state, setState] = useState<SupabaseClient | null>(null);
+// export const useSupabase = () => {
+//   const [state, setState] = useState<SupabaseClient | null>(null);
 
-  useEffect(() => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-      {
-        auth: {
-          debug: process.env.NODE_ENV === "development",
-          persistSession: true,
-          storage: localStorage,
-          storageKey: "supabase.auth.token",
-        },
-      }
-    );
-    setState(supabase);
-  }, []);
+//   useEffect(() => {
+//     const supabase = createClient(
+//       process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+//       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+//       {
+//         auth: {
+//           debug: process.env.NODE_ENV === "development",
+//           persistSession: true,
+//           storage: localStorage,
+//           storageKey: "supabase.auth.token",
+//         },
+//       }
+//     );
+//     setState(supabase);
+//   }, []);
 
-  return state;
-}
+//   return state;
+// }
 
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {

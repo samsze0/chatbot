@@ -1,8 +1,12 @@
 // TODO: protect routes from server-side (respond with redirect)
 
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import {
+  createMiddlewareClient,
+  createRouteHandlerClient,
+} from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import { User, createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 
 import { NextRequest } from "next/server";
 
@@ -66,26 +70,29 @@ interface AuthResult {
 }
 
 async function getUser(req: NextRequest): Promise<AuthResult> {
-  const token = req.cookies.get("supabase-token");
-  if (!token) {
-    return {
-      user: null,
-      error: "There is no supabase token in request cookies",
-    };
-  }
+  // const token = req.cookies.get("supabase-token");
+  // if (!token) {
+  //   return {
+  //     user: null,
+  //     error: "There is no supabase token in request cookies",
+  //   };
+  // }
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
+  // const supabase = createClient(
+  //   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  //   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+  //   {
+  //     auth: {
+  //       autoRefreshToken: false,
+  //       persistSession: false,
+  //     },
+  //   }
+  // );
 
-  const userResponse = await supabase.auth.getUser(token.value);
+  const supabase = createRouteHandlerClient({ cookies });
+
+  // const userResponse = await supabase.auth.getUser(token.value);
+  const userResponse = await supabase.auth.getUser();
 
   if (userResponse.error) {
     return {
