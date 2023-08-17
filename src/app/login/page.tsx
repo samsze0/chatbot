@@ -22,7 +22,7 @@ import { siteConfig } from "@/config/site-config";
 import { cn } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/components/providers";
+import { useSupabase } from "@/components/providers";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -43,6 +43,7 @@ export default function Page() {
   });
   const { t } = useTranslation();
   const router = useRouter();
+  const supabase = useSupabase();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { data, error } = await signIn(values.email, values.password);
@@ -61,6 +62,9 @@ export default function Page() {
     email: string,
     password: string
   ): Promise<AuthTokenResponse> => {
+    if (!supabase)
+      throw new Error("Supabase client is not initialized.");
+
     return supabase.auth.signInWithPassword({
       email,
       password,

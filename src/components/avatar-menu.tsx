@@ -25,13 +25,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/components/providers";
+import { useSupabase } from "@/components/providers";
 import { redirect, useRouter } from "next/navigation";
 
 export function AvatarMenu() {
   const session = useSessionStore((state) => state.session);
   const { t } = useTranslation();
   const router = useRouter();
+  const supabase = useSupabase();
 
   return (
     <DropdownMenu>
@@ -57,6 +58,9 @@ export function AvatarMenu() {
             className="text-muted-foreground"
             onClick={(e) => {
               e.preventDefault();
+              if (!supabase)
+                throw Error("Supabase client not found.");
+
               supabase.auth.signOut();
             }}
             href="/login"

@@ -20,6 +20,9 @@ export const config = {
 };
 
 export async function middleware(req: NextRequest) {
+  // Because the way NextJS's layout system works, layout components (e.g. side-header)
+  // cannot detect the pathname changed due to server redirect. So we are opting
+  // for client-side route protection for now
   const authResult = await getUser(req);
   const isLoginRoute =
     req.nextUrl.pathname.startsWith("/login") ||
@@ -28,22 +31,27 @@ export async function middleware(req: NextRequest) {
   if (authResult.error) {
     if (isLoginRoute) return NextResponse.next();
 
-    if (req.nextUrl.pathname.startsWith("/api"))
-      return NextResponse.json(
-        { error: "Authentication failed" },
-        { status: 401 }
-      );
+    // if (req.nextUrl.pathname.startsWith("/api"))
+    //   return NextResponse.json(
+    //     { error: "Authentication failed" },
+    //     { status: 401 }
+    //   );
 
-    // https://nextjs.org/docs/messages/middleware-relative-urls
-    return NextResponse.redirect(
-      // new URL(`/login?redirect=${encodeURIComponent(req.url)}`, req.url)
-      new URL(`/login`, req.nextUrl.origin)
+    // // https://nextjs.org/docs/messages/middleware-relative-urls
+    // return NextResponse.rewrite(
+    //   // new URL(`/login?redirect=${encodeURIComponent(req.url)}`, req.url)
+    //   new URL(`/login`, req.nextUrl.origin)
+    // );
+
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 401 }
     );
   }
 
-  if (isLoginRoute) {
-    return NextResponse.redirect(new URL(`/`, req.nextUrl.origin));
-  }
+  // if (isLoginRoute) {
+  //   return NextResponse.rewrite(new URL(`/`, req.nextUrl.origin));
+  // }
 
   const res = NextResponse.next();
   return res;
@@ -65,7 +73,13 @@ async function getUser(req: NextRequest): Promise<AuthResult> {
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      }
+    }
   );
 
   const userResponse = await supabase.auth.getUser(token.value);
