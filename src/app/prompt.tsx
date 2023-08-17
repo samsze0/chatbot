@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,11 +15,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef } from "react";
+import { FormEvent, useEffect, useRef } from "react";
 import { create } from "zustand";
 import { cn } from "@/lib/utils";
 import { useSettingsStore } from "@/components/settings";
 import usePersistedStore from "@/components/use-persisted-store";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  prompt: z.string().min(3),
+  promptTemplate: z.string(),
+});
 
 export const usePromptStore = create<{
   open: boolean;
@@ -27,19 +46,11 @@ export const usePromptStore = create<{
 
 export function Prompt({
   className,
-  input,
-  handleInputChange,
-  handleSubmit,
+  submitPrompt,
   ...props
 }: {
   className?: string;
-  input: string;
-  handleInputChange: (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  submitPrompt: (prompt: string) => Promise<string | null | undefined>;
 }) {
   const { t } = useTranslation();
   const { open } = usePromptStore();
@@ -48,6 +59,34 @@ export function Prompt({
     (state) => state.openPromptHotkey
   );
   const openPromptHotkeyRef = useRef(openPromptHotkey);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      prompt: "",
+      promptTemplate: "",
+    },
+  });
+
+  const isFormValidRef = useRef(form.formState.isValid);
+
+  useEffect(() => {
+    isFormValidRef.current = form.formState.isValid;
+  }, [form.formState.isValid]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    usePromptStore.setState({ open: false });
+
+    try {
+      await submitPrompt(values.prompt);
+      form.resetField("prompt");
+      form.clearErrors();
+    } catch (e) {
+      form.setError("prompt", {
+        message: "Invalid prompt",
+      });
+    }
+  }
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -72,7 +111,8 @@ export function Prompt({
           variant="outline"
           className={cn(
             className,
-            "flex flex-row gap-2 items-center justify-between py-5 px-3"
+            "flex flex-row gap-2 items-center justify-between py-5 px-3",
+            "focus-visible:ring-0 ring-0 outline-none focus-visible:outline-none"
           )}
           onClick={(e) => {
             usePromptStore.setState({ open: true });
@@ -98,46 +138,66 @@ export function Prompt({
           usePromptStore.setState({ open: false });
         }}
       >
-        <form
-          onSubmit={(e) => {
-            handleSubmit(e);
-            usePromptStore.setState({ open: false });
-          }}
-          className="flex flex-col gap-5 bg-background"
-        >
-          <Textarea
-            className="flex-1 resize-none text-base text-foreground/80 leading-relaxed focus-visible:ring-0 focus-visible:outline-none outline-none ring-0"
-            value={input}
-            placeholder={t("Prompt")}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.metaKey && !e.altKey && !e.ctrlKey) {
-                if (e.shiftKey) {
-                  return;
-                }
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-5 bg-background"
+          >
+            <FormField
+              control={form.control}
+              name="prompt"
+              render={({ field, fieldState, formState }) => (
+                <Textarea
+                  className={cn(
+                    "flex-1 resize-none text-base text-foreground/80 leading-relaxed",
+                    "focus-visible:ring-0 focus-visible:outline-none outline-none ring-0",
+                    fieldState.error ? "border-error" : ""
+                  )}
+                  placeholder={t("Prompt")}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      !e.metaKey &&
+                      !e.altKey &&
+                      !e.ctrlKey
+                    ) {
+                      if (e.shiftKey) {
+                        return;
+                      }
 
-                // @ts-ignore
-                e.target.form.requestSubmit();
-                e.preventDefault();
-              }
-            }}
-          />
-          <div className="flex flex-row gap-2 self-end">
-            <DialogClose asChild>
+                      if (isFormValidRef.current)
+                        // @ts-ignore
+                        e.target.form.requestSubmit();
+
+                      e.preventDefault();
+                    }
+                  }}
+                  {...field}
+                />
+              )}
+            />
+            <div className="flex flex-row gap-2 self-end">
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  onClick={(e) => {
+                    usePromptStore.setState({ open: false });
+                  }}
+                >
+                  {t("Close")}
+                </Button>
+              </DialogClose>
+              {/* <PromptTemplatePanel /> */}
               <Button
-                variant="outline"
-                onClick={(e) => {
-                  usePromptStore.setState({ open: false });
-                }}
+                type="submit"
+                variant="default"
+                disabled={!form.formState.isValid}
               >
-                {t("Close")}
+                {t("Submit")}
               </Button>
-            </DialogClose>
-            <Button type="submit" variant="default">
-              {t("Submit")}
-            </Button>
-          </div>
-        </form>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

@@ -16,7 +16,7 @@ import {
 import { Prompt } from "./prompt";
 
 export default function Page() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, append } = useChat();
   const { t } = useTranslation();
 
   return (
@@ -34,9 +34,11 @@ export default function Page() {
       )}
       <Prompt
         className="fixed bottom-8 right-8"
-        input={input}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
+        submitPrompt={(prompt) => append({
+          content: prompt,
+          role: "user",
+          createdAt: new Date(),
+        })}
       />
     </div>
   );

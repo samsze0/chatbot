@@ -30,7 +30,8 @@ export async function middleware(req: NextRequest) {
   const isApiRoute = req.nextUrl.pathname.startsWith("/api");
   if (!isApiRoute) return NextResponse.next();
 
-  const authResult = await getUser(req);
+  const res = NextResponse.next();
+  const authResult = await getUser(req, res);
   // const isLoginRoute =
   //   req.nextUrl.pathname.startsWith("/login") ||
   //   req.nextUrl.pathname.startsWith("/signup");
@@ -60,7 +61,7 @@ export async function middleware(req: NextRequest) {
   //   return NextResponse.rewrite(new URL(`/`, req.nextUrl.origin));
   // }
 
-  const res = NextResponse.next();
+  // const res = NextResponse.next();
   return res;
 }
 
@@ -69,7 +70,8 @@ interface AuthResult {
   error: null | string;
 }
 
-async function getUser(req: NextRequest): Promise<AuthResult> {
+// async function getUser(req: NextRequest): Promise<AuthResult> {
+async function getUser(req: NextRequest, res: NextResponse): Promise<AuthResult> {
   // const token = req.cookies.get("supabase-token");
   // if (!token) {
   //   return {
@@ -89,7 +91,7 @@ async function getUser(req: NextRequest): Promise<AuthResult> {
   //   }
   // );
 
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = createMiddlewareClient({ req, res });
 
   // const userResponse = await supabase.auth.getUser(token.value);
   const userResponse = await supabase.auth.getUser();
