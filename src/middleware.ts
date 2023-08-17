@@ -23,13 +23,16 @@ export async function middleware(req: NextRequest) {
   // Because the way NextJS's layout system works, layout components (e.g. side-header)
   // cannot detect the pathname changed due to server redirect. So we are opting
   // for client-side route protection for now
+  const isApiRoute = req.nextUrl.pathname.startsWith("/api");
+  if (!isApiRoute) return NextResponse.next();
+
   const authResult = await getUser(req);
-  const isLoginRoute =
-    req.nextUrl.pathname.startsWith("/login") ||
-    req.nextUrl.pathname.startsWith("/signup");
+  // const isLoginRoute =
+  //   req.nextUrl.pathname.startsWith("/login") ||
+  //   req.nextUrl.pathname.startsWith("/signup");
 
   if (authResult.error) {
-    if (isLoginRoute) return NextResponse.next();
+    // if (isLoginRoute) return NextResponse.next();
 
     // if (req.nextUrl.pathname.startsWith("/api"))
     //   return NextResponse.json(
@@ -78,7 +81,7 @@ async function getUser(req: NextRequest): Promise<AuthResult> {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
-      }
+      },
     }
   );
 
