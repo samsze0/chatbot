@@ -154,6 +154,7 @@ export function Prompt({
                     fieldState.error ? "border-error" : ""
                   )}
                   placeholder={t("Prompt")}
+                  disabled={formState.isSubmitting}
                   onKeyDown={(e) => {
                     if (
                       e.key === "Enter" &&
@@ -191,7 +192,7 @@ export function Prompt({
               <Button
                 type="submit"
                 variant="default"
-                disabled={!form.formState.isValid}
+                disabled={!form.formState.isValid || form.formState.isSubmitting}
               >
                 {t("Submit")}
               </Button>

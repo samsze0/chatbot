@@ -16,7 +16,7 @@ import {
 import { Prompt } from "./prompt";
 
 export default function Page() {
-  const { messages, append } = useChat();
+  const { messages, append, isLoading } = useChat();
   const { t } = useTranslation();
 
   return (
@@ -34,11 +34,16 @@ export default function Page() {
       )}
       <Prompt
         className="fixed bottom-8 right-8"
-        submitPrompt={(prompt) => append({
-          content: prompt,
-          role: "user",
-          createdAt: new Date(),
-        })}
+        submitPrompt={(prompt) => {
+          if (isLoading)
+            throw Error("Chatbot is generating his response. Please wait.");
+
+          return append({
+            content: prompt,
+            role: "user",
+            createdAt: new Date(),
+          });
+        }}
       />
     </div>
   );
