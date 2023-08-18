@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
+import { Session, User } from "@supabase/supabase-js";
 import { create } from "zustand";
 import Cookies from "js-cookie";
 import { redirect, usePathname, useRouter } from "next/navigation";
@@ -35,13 +35,15 @@ export const SessionProvider = ({
   const supabase = createClientComponentClient();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (NO_AUTH_ROUTES.includes(pathname) && !session) return;
-    if (NO_AUTH_ROUTES.includes(pathname) && session) redirect("/");
+  // TODO: add route protection
 
-    // Inside one of AUTH_ROUTES
-    if (!session) redirect("/login");
-  }, [pathname, session]);
+  // useEffect(() => {
+  //   if (NO_AUTH_ROUTES.includes(pathname) && !session) return;
+  //   if (NO_AUTH_ROUTES.includes(pathname) && session) redirect("/");
+
+  //   // Inside one of AUTH_ROUTES
+  //   if (!session) redirect("/login");
+  // }, [pathname, session]);
 
   const onSessionChange = (session: Session | null) => {
     useSessionStore.setState({ session });
@@ -85,7 +87,7 @@ export const SessionProvider = ({
     });
 
     return () => subscription.unsubscribe();
-  // }, [supabase]);
+    // }, [supabase]);
   }, []);
 
   return children;

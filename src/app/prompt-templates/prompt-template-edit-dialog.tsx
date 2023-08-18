@@ -75,6 +75,12 @@ export function PromptTemplateEditDialog() {
     isFormValidRef.current = form.formState.isValid;
   }, [form.formState.isValid]);
 
+  useEffect(() => {
+    if (open) {
+      form.clearErrors();
+    }
+  }, [open, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {}
 
   return (
@@ -111,10 +117,14 @@ export function PromptTemplateEditDialog() {
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder={"Prompt name"} {...field} />
+                    <Input
+                      placeholder={"Prompt name"}
+                      {...field}
+                      className={cn(fieldState.error ? "border-error" : "")}
+                    />
                   </FormControl>
                   <FormDescription>
                     {t("Give it a descriptive name.")}
