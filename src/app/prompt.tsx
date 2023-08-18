@@ -32,6 +32,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link";
 
 const formSchema = z.object({
   prompt: z.string().min(3),
@@ -64,21 +74,40 @@ export function Prompt({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
-      promptTemplate: "",
     },
   });
 
   const isFormValidRef = useRef(form.formState.isValid);
+
+  const supabase = createClientComponentClient<Database>();
+
+  const promptTemplatesQuery = useQuery({
+    // @ts-ignore
+    queryKey: ["prompt-templates"],
+    queryFn: () =>
+      supabase
+        .from("prompt_templates")
+        .select()
+        .throwOnError()
+        .then(({ data }) => {
+          console.log(data);
+          return data;
+        }),
+  });
 
   useEffect(() => {
     isFormValidRef.current = form.formState.isValid;
   }, [form.formState.isValid]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const fullPrompt = values.promptTemplate.replace(
+      /\{\{prompt\}\}/,
+      values.prompt
+    );
     usePromptStore.setState({ open: false });
 
     try {
-      await submitPrompt(values.prompt);
+      await submitPrompt(fullPrompt);
       form.resetField("prompt");
       form.clearErrors();
     } catch (e) {
@@ -126,7 +155,7 @@ export function Prompt({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="w-[80%] h-[80%] p-0 border-0 shadow-none bg-transparent"
+        className="w-[80%] h-[80%] p-0 border-0 shadow-none bg-transparent focus:ring-0 focus:outline-none ring-0 outline-none"
         showDefaultCloseButton={false}
         onEscapeKeyDown={(e) => {
           usePromptStore.setState({ open: false });
@@ -143,6 +172,55 @@ export function Prompt({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-5 bg-background"
           >
+            <div className="flex flex-row gap-2 self-end items-center">
+              <Link
+                href="/prompt-templates"
+                className="text-sm text-foreground/60 hover:text-foreground/80 ml-2 mr-2"
+              >
+                {t("Edit Templates")}
+              </Link>
+              <FormField
+                control={form.control}
+                name="promptTemplate"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger
+                          className={cn(
+                            "min-w-[150px]",
+                            "focus-visible:ring-0 focus-visible:outline-none outline-none ring-0 focus:ring-0",
+                            !field.value
+                              ? "text-muted-foreground/80"
+                              : "text-foreground/80"
+                          )}
+                        >
+                          <SelectValue
+                            placeholder={t("Select a prompt template")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="{{prompt}}">None</SelectItem>
+                        {promptTemplatesQuery.data
+                          ? promptTemplatesQuery.data.map((template) => (
+                              <SelectItem
+                                key={template.id}
+                                value={template.prompt_template}
+                              >
+                                {template.name}
+                              </SelectItem>
+                            ))
+                          : null}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="prompt"
@@ -188,11 +266,12 @@ export function Prompt({
                   {t("Close")}
                 </Button>
               </DialogClose>
-              {/* <PromptTemplatePanel /> */}
               <Button
                 type="submit"
                 variant="default"
-                disabled={!form.formState.isValid || form.formState.isSubmitting}
+                disabled={
+                  !form.formState.isValid || form.formState.isSubmitting
+                }
               >
                 {t("Submit")}
               </Button>

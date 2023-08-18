@@ -43,7 +43,7 @@ export default function Page() {
   });
   const { t } = useTranslation();
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient<Database>();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { data, error } = await signIn(values.email, values.password);

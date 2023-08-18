@@ -32,7 +32,7 @@ export function AvatarMenu() {
   const session = useSessionStore((state) => state.session);
   const { t } = useTranslation();
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient<Database>();
 
   return (
     <DropdownMenu>
@@ -45,15 +45,14 @@ export function AvatarMenu() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[150px]">
-        <DropdownMenuItem>
-          <MdOutlineAccountCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+        <DropdownMenuItem asChild>
           <Link className="text-muted-foreground" href="/account">
-            {t("Account")}
+            <MdOutlineAccountCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+            <span>{t("Account")}</span>
           </Link>
           {/* <DropdownMenuShortcut>⌘K</DropdownMenuShortcut> */}
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <TbLogout className="mr-2 h-4 w-4 text-muted-foreground" />
+        <DropdownMenuItem asChild>
           <Link
             className="text-muted-foreground"
             onClick={(e) => {
@@ -65,7 +64,8 @@ export function AvatarMenu() {
             }}
             href="/login"
           >
-            {t("Sign out")}
+            <TbLogout className="mr-2 h-4 w-4 text-muted-foreground" />
+            <span>{t("Sign out")}</span>
           </Link>
           {/* <DropdownMenuShortcut>⌘K</DropdownMenuShortcut> */}
         </DropdownMenuItem>

@@ -135,7 +135,7 @@ export function Settings({ className, ...props }: { className?: string }) {
           useSettingsStore.setState({ open: false });
         }}
       >
-        <DialogHeader>
+        <DialogHeader className="gap-1">
           <DialogTitle>{t("Settings")}</DialogTitle>
           <DialogDescription>
             {t("All settings are automatically saved.")}
