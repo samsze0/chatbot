@@ -2,9 +2,15 @@
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "tailwindCSS.experimental.classRegex": ["tailwind`([^`]*)"],
+  "tailwindCSS.experimental.classRegex": ["tw`([^`]*)"],
   "[mdx]": {
     "editor.formatOnSave": false,
     "editor.wordWrap": "on"
-  }
+  },
+  "search.exclude": {
+    "ui/**": false
+  },
+  "i18n-ally.localesPaths": [
+    "src/app/messages"
+  ]
 }

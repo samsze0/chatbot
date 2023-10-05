@@ -1,23 +1,25 @@
-import { Configuration, OpenAIApi } from "openai-edge";
+import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 
-const config = new Configuration({
+// Edge friendly OpenAI API client
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(config);
 
 export const runtime = "edge";
 
 export async function POST(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const model = searchParams.get("model");
+
+  if (!model) return new Response("Missing model parameter", { status: 400 });
+
   const { messages } = await req.json();
 
-  const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
+  const response = await openai.chat.completions.create({
+    model,
     stream: true,
-    messages: messages.map((message: any) => ({
-      content: message.content,
-      role: message.role,
-    })),
+    messages,
   });
 
   const stream = OpenAIStream(response);

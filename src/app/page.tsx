@@ -1,98 +1,89 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { useChat, Message as MessageType } from "ai/react";
-import { useTranslation } from "react-i18next";
-import { RxCopy } from "react-icons/rx";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  Button,
+  Input,
+  Textarea,
+  ScrollArea,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Prompt } from "./prompt";
+  cn,
+  Translation,
+  useToast,
+} from "@artizon/ui";
+import { useChat, Message as MessageType } from "ai/react";
+import { RxCopy } from "react-icons/rx";
+import { PromptDialogStack, PromptDialogStackTrigger } from "./prompt";
+import { z } from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@artizon/ui";
+import { useEffect, useState } from "react";
+import { Messages } from "./messages";
+import { usePromptDialog } from "./prompt/dialog";
 
 export default function Page() {
-  const { messages, append, isLoading } = useChat();
-  const { t } = useTranslation();
+  const [model, setModel] = useState<string>("gpt-3.5-turbo");
+  const { messages, append, isLoading, stop, error } = useChat({
+    api: `/api/chat${model ? `?model=${model}` : ""}`,
+  });
+  // const { t } = useTranslation();
+  const { t } = { t: (t: string) => t };
+
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (error)
+      toast({
+        title: "Fail to generate response",
+        description: "Please confirm that your API token is valid.",
+        variant: "destructive",
+      });
+  }, [error, toast]);
+
+  useEffect(() => {
+    const submitPrompt = (prompt) => {
+      if (isLoading)
+        throw Error("Chatbot is generating his response. Please wait.");
+
+      return append({
+        content: prompt,
+        role: "user",
+        createdAt: new Date(),
+      });
+    };
+
+    usePromptDialog.setState({ submitPrompt });
+  }, [append, isLoading]);
 
   return (
-    <div className="relative">
-      {messages.length === 0 ? (
-        <div className="flex items-center justify-center h-full w-full">
-          <p className="text-sm text-muted-foreground">{t("Chat is empty")}</p>
-        </div>
-      ) : (
-        <div className="container relative pt-8 pb-8 flex flex-col gap-2 items-stretch">
-          {messages.length > 0
-            ? messages.map((m) => <Message message={m} key={m.id} />)
-            : null}
-        </div>
-      )}
-      <Prompt
-        className="fixed bottom-8 right-8"
-        submitPrompt={(prompt) => {
-          if (isLoading)
-            throw Error("Chatbot is generating his response. Please wait.");
-
-          return append({
-            content: prompt,
-            role: "user",
-            createdAt: new Date(),
-          });
-        }}
-      />
-    </div>
-  );
-}
-
-const Message = ({ message, ...props }: { message: MessageType }) => {
-  const isUser = message.role === "user";
-  const { t } = useTranslation();
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(message.content);
-  };
-
-  return (
-    <div
-      className={cn(
-        "relative border rounded px-4 py-3 flex flex-col gap-1",
-        isUser
-          ? "bg-primary/10 border-primary/[15%]"
-          : "bg-destructive/10 border-destructive/[15%]"
-      )}
-    >
-      <div className="flex flex-row justify-between gap-2">
-        <p className="text-xs text-muted-foreground/80">
-          {isUser ? t("User") : t("Bot")}
-        </p>
-        <div className={cn("flex flex-row gap-1")}>
-          <Button
-            variant="ghost"
-            className="p-0 h-[25px] w-[25px]"
-            size="icon"
-            onClick={(e) => copyToClipboard()}
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <RxCopy className="w-[15px] h-[15px] text-muted-foreground" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>{t("Copy")}</TooltipContent>
-            </Tooltip>
-          </Button>
+    <>
+      <PromptDialogStack />
+      <div className="relative">
+        <Messages messages={messages} />
+        <div className="fixed bottom-8 right-8 flex md:flex-row flex-col gap-5">
+          <Select onValueChange={setModel} defaultValue={model}>
+            <SelectTrigger
+              className={cn(
+                "w-[200px] bg-background",
+                !model ? "text-muted-foreground/80" : "text-foreground/80"
+              )}
+            >
+              <SelectValue placeholder={t("Select a model")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="gpt-3.5-turbo">OpenAI GPT 3.5 Turbo</SelectItem>
+              <SelectItem value="gpt-4">OpenAI GPT 4</SelectItem>
+            </SelectContent>
+          </Select>
+          <PromptDialogStackTrigger />
         </div>
       </div>
-      <p
-        className={cn("whitespace-pre-wrap text-foreground/75 leading-relaxed")}
-      >
-        {message.content}
-      </p>
-    </div>
+    </>
   );
-};
+}

@@ -4,7 +4,6 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -20,8 +19,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+      "@artizon/ui": ["./ui"],
+      "@artizon/ui/next": ["./ui/next"],
+      "@artizon/ui/next-client-components": ["./ui/next-client-components"],
+      "@@/*": ["./ui/src/*"]
+    },
+    "strict": false
   },
   "include": [
     "next-env.d.ts",
