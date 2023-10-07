@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm submodule && next build",
+    "build": "pnpm submodule:update && next build",
     "start": "next start",
     "lint": "next lint",
-    "submodule": "git submodule update --init --recursive --remote",
+    "submodule:add": "git submodule add https://github.com/artizon-io/ui ui",
+    "submodule:update": "git submodule update --init --recursive --remote",
     "supabase:login": "supabase login",
     "supabase:types": "supabase gen types typescript --project-id gpunlihlwjnlwvwypqhy"
   },
