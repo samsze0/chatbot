@@ -1,12 +1,16 @@
+"use client";
+
 import { translations } from "@/config/translations";
 import { NextProviders } from "@artizon/ui/next-client-components";
 import { ReactNode } from "react";
-import { ExtraProviders } from "./extra-providers";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export async function Providers({ children }: { children: ReactNode }) {
+const queryClient = new QueryClient();
+
+export function Providers({ children }: { children: ReactNode }) {
   return (
     <NextProviders translations={translations}>
-      <ExtraProviders>{children}</ExtraProviders>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </NextProviders>
   );
 }

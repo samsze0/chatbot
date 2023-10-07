@@ -2,7 +2,6 @@ import "./globals.css";
 import { Metadata } from "next";
 
 import { siteConfig } from "@/config/site-config";
-import { fontSans } from "@/lib/fonts";
 import { Analytics } from "@/components/analytics";
 import { Providers } from "@/components/providers";
 import { Toaster, I18Dropdown, cn, AvatarMenu } from "@artizon/ui";
