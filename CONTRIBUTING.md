@@ -28,3 +28,13 @@ Or alternatively, specific the project ID using the `--project-id` flag instead.
 **If you accidentally committed the local symlink**
 
 Manually edit `.git/modules` and `.git/config` to reset the submodule status
+
+**Useful commands**
+
+- `git rm --cache -r ui/`
+- Last resort: `git reset --hard origin/main`
+
+**Update submodule**
+
+1. `cd` into the submodule and `git checkout tag/<tag>`
+2. `git commit` the submodule file
