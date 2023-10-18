@@ -6,7 +6,7 @@ import {
   Textarea,
   Translation,
   cn,
-  tailwind,
+  tw,
   useToast,
 } from "@artizon/ui";
 import { TbPencilCog } from "react-icons/tb";
@@ -14,7 +14,7 @@ import { HiOutlineTrash } from "react-icons/hi";
 import { usePromptDialogStack } from "../dialog-stack";
 import { EditPromptTemplateDialog, useEditPromptDialog } from "./edit-dialog";
 
-const labelStyles = tailwind`text-sm text-muted-foreground`;
+const labelStyles = tw`text-sm text-muted-foreground`;
 
 export const PromptTemplate = ({
   template,
