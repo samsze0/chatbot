@@ -96,26 +96,22 @@ export function PromptTemplatesDialog(props) {
 
   return (
     <PromptDialogStackItem {...props}>
-      <div className="flex flex-row justify-between items-center">
-        <DialogTitle>Prompt Templates</DialogTitle>
-        <div className="flex flex-row gap-2">
-          <Button
-            variant="default"
-            onClick={() => {
-              useEditPromptDialog.setState({
-                currentTemplate: undefined,
-              });
-              push(EditPromptTemplateDialog);
-            }}
-          >
-            <Translation asChild>Add new</Translation>
-          </Button>
-        </div>
-      </div>
+      {/* <Button
+        variant="default"
+        onClick={() => {
+          useEditPromptDialog.setState({
+            currentTemplate: undefined,
+          });
+          push(EditPromptTemplateDialog);
+        }}
+      >
+        <Translation asChild>Add new</Translation>
+      </Button> */}
       {promptTemplatesReq.data?.length ? (
         <div
           className={cn(
-            "grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6",
+            // "grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6",
+            "flex flex-col gap-6",
             "overflow-y-auto"
           )}
         >

@@ -5,11 +5,12 @@ import {
   CustomSetting,
   generateSettingsComp,
   generateUseSettingsStore,
+  generateSettingsTriggerComp,
   SettingsHotkey,
+  usePersistedStore,
 } from "@artizon/ui";
 import { z } from "zod";
 import { RxGear } from "react-icons/rx";
-import { useSettingsVisibility } from "@@/components/settings";
 
 export const useSettings = generateUseSettingsStore<{
   toggleCommandMenuHotkey: string;
@@ -35,31 +36,26 @@ export const changeToggleCommandMenuHotkey = (key: string) =>
 const Comp = generateSettingsComp(useSettings);
 
 export function Settings() {
-  const { toggleCommandMenuHotkey } = useSettings();
+  const toggleCommandMenuHotkey = usePersistedStore(
+    useSettings,
+    // @ts-ignore
+    (state) => state.toggleCommandMenuHotkey
+  );
 
   return (
     <Comp
-      includeTrigger={false}
       hotkeyConfigItems={
         <>
-          {/* <SettingsHotkey
+          <SettingsHotkey
             inputId=""
             label="command menu"
             onChange={changeToggleCommandMenuHotkey}
             value={toggleCommandMenuHotkey}
-          /> */}
+          />
         </>
       }
     />
   );
 }
 
-export function SettingsTrigger() {
-  const { toggle } = useSettingsVisibility();
-
-  return (
-    <Button variant="ghost" size="icon" onClick={toggle}>
-      <RxGear className="w-5 h-5" />
-    </Button>
-  );
-}
+export const SettingsTrigger = generateSettingsTriggerComp(useSettings);

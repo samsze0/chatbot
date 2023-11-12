@@ -20,9 +20,8 @@ import { ReactNode } from "react";
 import { navConfig } from "@/config/nav-config";
 import Link from "next/link";
 import { Settings, SettingsTrigger } from "@/components/settings";
+import { CommandMenu, CommandMenuTrigger } from "@/components/command-menu";
 
-// https://nextjs.org/docs/app/api-reference/functions/generate-metadata
-// https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadata-fields
 export const metadata: Metadata = generateNextMetadata(siteConfig);
 
 export const dynamic = "force-dynamic";
@@ -35,6 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <Providers>
         <div className={cn(nextAppContainerStyles)}>
           <Settings />
+          <CommandMenu />
           <NextSiteHeaderWithSupabase
             protectedRouteOnly
             linkComp={Link}
@@ -42,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             siteConfig={siteConfig}
             rightSideItems={
               <>
+                <CommandMenuTrigger />
                 <NextThemeToggle />
                 <SettingsTrigger />
                 <span />

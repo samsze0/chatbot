@@ -36,5 +36,5 @@ Manually edit `.git/modules` and `.git/config` to reset the submodule status
 
 **Update submodule**
 
-1. `cd` into the submodule and `git checkout tag/<tag>`
+1. `cd` into the submodule and `git checkout tags/<tag>`
 2. `git commit` the submodule file

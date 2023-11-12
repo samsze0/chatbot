@@ -1,17 +1,19 @@
 "use client";
 
-import { Button, useHotkey, usePersistedStore } from "@artizon/ui";
+import {
+  Button,
+  Keybind,
+  Translation,
+  useHotkey,
+  usePersistedStore,
+} from "@artizon/ui";
 import { useTranslation } from "react-i18next";
 import { FormEvent, useEffect, useRef } from "react";
 import { useSettings } from "@/components/settings";
 import { PromptDialogStackItem, usePromptDialogStack } from "./dialog-stack";
 import { PromptDialog } from "./dialog";
 
-export function PromptDialogStackTrigger({
-  className,
-}: {
-  className?: string;
-}) {
+export function PromptDialogStackTrigger() {
   // const { t } = useTranslation();
   const { t } = { t: (t: string) => t };
 
@@ -34,13 +36,9 @@ export function PromptDialogStackTrigger({
     <Button
       onClick={() => push(PromptDialog)}
       variant="outline"
-      className="gap-2"
+      tooltipContent={<Keybind hotkey={hotkey} />}
     >
-      <span>{t("Prompt")}</span>
-      <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium flex">
-        <span className="text-xs">⌘</span>
-        {hotkey?.toUpperCase()}
-      </kbd>
+      <Translation asChild>Prompt</Translation>
     </Button>
   );
 }

@@ -149,63 +149,6 @@ export function PromptDialog(props) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full h-full flex flex-col gap-5 bg-background"
         >
-          <div className="flex flex-row gap-4 items-center">
-            <div className="flex flex-col gap-2">
-              <Translation className="text-sm text-foreground/80">
-                Prompt templates
-              </Translation>
-              <div className="flex flex-row gap-2">
-                <FormField
-                  control={form.control}
-                  name="promptTemplate"
-                  render={({ field, fieldState, formState }) => (
-                    <FormItem>
-                      {/* TODO: add loading state for Select */}
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger
-                            className={cn(
-                              "w-[200px]",
-                              "focus-visible:ring-0 focus-visible:outline-none outline-none ring-0 focus:ring-0",
-                              !field.value
-                                ? "text-muted-foreground/80"
-                                : "text-foreground/80"
-                            )}
-                            disabled={formState.isSubmitting}
-                          >
-                            <SelectValue
-                              placeholder={t("Select a prompt template")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {promptTemplatesReq.data?.map((template) => (
-                            <SelectItem key={template.id} value={template.id}>
-                              {template.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => push(PromptTemplatesDialog)}
-                >
-                  <TbPencilCog
-                    className="w-5 h-5 text-muted-foreground"
-                    strokeWidth={1}
-                  />
-                </Button>
-              </div>
-            </div>
-          </div>
           <FormField
             control={form.control}
             name="prompt"
@@ -242,8 +185,52 @@ export function PromptDialog(props) {
             )}
           />
           <div className="flex flex-row gap-2 self-end">
-            <Button variant="outline" onClick={pop}>
+            {/* <Button variant="outline" onClick={pop}>
               {t("Close")}
+            </Button> */}
+            <FormField
+              control={form.control}
+              name="promptTemplate"
+              render={({ field, fieldState, formState }) => (
+                <FormItem>
+                  {/* TODO: add loading state for Select */}
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        className={cn(
+                          "w-[200px]",
+                          "focus-visible:ring-0 focus-visible:outline-none outline-none ring-0 focus:ring-0",
+                          !field.value
+                            ? "text-muted-foreground/80"
+                            : "text-foreground/80"
+                        )}
+                        disabled={formState.isSubmitting}
+                      >
+                        <SelectValue
+                          placeholder={t("Select a prompt template")}
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {promptTemplatesReq.data?.map((template) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <Button
+              variant="outline"
+              onClick={() => push(PromptTemplatesDialog)}
+            >
+              {t("Edit templates")}
             </Button>
             <Button
               type="submit"
